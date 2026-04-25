@@ -2,58 +2,228 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Student Registration</title>
+  <title>Student Demo Registration</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <header>
-      <h1>Student Demo Registration</h1>
-      <p>Select a time slot and register your project</p>
-    </header>
+  <header>
+    <h1>Student Registration</h1>
+    <p>Select a time slot and register your project</p>
+    <a href="students.html">View Registered Students →</a>
+  </header>
 
-    <!-- REGISTRATION FORM -->
-    <section class="form-section">
-      <h2>Register</h2>
+  <!-- FORM -->
+  <section class="form-section">
+    <h2>Register</h2>
 
-      <form id="registerForm">
+    <form id="registerForm">
 
-        <input type="text" id="studentId" placeholder="Student ID (8 digits)" required>
+      <input type="text" id="studentId" placeholder="Student ID (8 digits)">
 
-        <div class="row">
-          <input type="text" id="firstName" placeholder="First Name" required>
-          <input type="text" id="lastName" placeholder="Last Name" required>
-        </div>
-
-        <input type="text" id="projectTitle" placeholder="Project Title" required>
-
-        <input type="email" id="email" placeholder="Email" required>
-
-        <input type="text" id="phone" placeholder="Phone (999-999-9999)" required>
-
-        <!-- Timeslots (will be filled by Node later) -->
-        <select id="timeslot">
-          <option value="">Select Time Slot</option>
-        </select>
-
-        <button type="submit">Submit Registration</button>
-
-      </form>
-    </section>
-
-    <!-- TIME SLOT DISPLAY -->
-    <section class="timeslot-section">
-      <h2>Available Time Slots</h2>
-      <div id="timeslots">
-        <!-- dynamically filled later -->
-        <p>Loading time slots...</p>
+      <div class="row">
+        <input type="text" id="firstName" placeholder="First Name">
+        <input type="text" id="lastName" placeholder="Last Name">
       </div>
-    </section>
 
-  </div>
+      <input type="text" id="projectTitle" placeholder="Project Title">
+
+      <input type="text" id="email" placeholder="Email">
+
+      <input type="text" id="phone" placeholder="Phone (999-999-9999)">
+
+      <select id="timeslot">
+        <option value="">Select Time Slot</option>
+      </select>
+
+      <button type="submit">Submit Registration</button>
+
+    </form>
+
+    <p id="message"></p>
+  </section>
+
+  <!-- SLOTS -->
+  <section class="timeslot-section">
+    <h2>Available Time Slots</h2>
+    <div id="timeslots">
+      <p>Loading time slots...</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+
+const API = "http://localhost:3000";
+
+// ==========================
+// LOAD TIME SLOTS
+// ==========================
+async function loadSlots() {
+  try {
+    const res = await fetch(API + "/timeslots");
+    const data = await res.json();
+
+    const slotDiv = document.getElementById("timeslots");
+    const select = document.getElementById("timeslot");
+
+    slotDiv.innerHTML = "";
+    select.innerHTML = `<option value="">Select Time Slot</option>`;
+
+    data.forEach(slot => {
+
+      // Display text
+      const p = document.createElement("p");
+      p.textContent = `Slot ${slot.timeslot} — ${slot.remaining} seats remaining`;
+
+      if (slot.remaining === 0) {
+        p.style.color = "red";
+      }
+
+      slotDiv.appendChild(p);
+
+      // Dropdown
+      const option = document.createElement("option");
+      option.value = slot.timeslot;
+      option.textContent = `Slot ${slot.timeslot} (${slot.remaining} left)`;
+
+      if (slot.remaining === 0) {
+        option.disabled = true;
+      }
+
+      select.appendChild(option);
+    });
+
+  } catch (err) {
+    document.getElementById("timeslots").innerHTML = "Error loading slots.";
+  }
+}
+
+loadSlots();
+
+
+// ==========================
+// VALIDATION
+// ==========================
+function validate() {
+  let valid = true;
+
+  const fields = {
+    id: document.getElementById("studentId"),
+    first: document.getElementById("firstName"),
+    last: document.getElementById("lastName"),
+    email: document.getElementById("email"),
+    phone: document.getElementById("phone"),
+    slot: document.getElementById("timeslot")
+  };
+
+  // Reset borders
+  Object.values(fields).forEach(f => f.style.border = "");
+
+  const idRegex = /^\d{8}$/;
+  const nameRegex = /^[A-Za-z]+$/;
+  const emailRegex = /^[A-Za-z0-9]+@[A-Za-z0-9]+(\.[A-Za-z0-9]{1,20})+$/;
+  const phoneRegex = /^\d{3}\d{3}\d{4}$/;
+
+  if (!idRegex.test(fields.id.value)) {
+    fields.id.style.border = "2px solid red";
+    valid = false;
+  }
+
+  if (!nameRegex.test(fields.first.value)) {
+    fields.first.style.border = "2px solid red";
+    valid = false;
+  }
+
+  if (!nameRegex.test(fields.last.value)) {
+    fields.last.style.border = "2px solid red";
+    valid = false;
+  }
+
+  if (!emailRegex.test(fields.email.value)) {
+    fields.email.style.border = "2px solid red";
+    valid = false;
+  }
+
+  if (!phoneRegex.test(fields.phone.value)) {
+    fields.phone.style.border = "2px solid red";
+    valid = false;
+  }
+
+  if (fields.slot.value === "") {
+    fields.slot.style.border = "2px solid red";
+    valid = false;
+  }
+
+  return valid;
+}
+
+
+// ==========================
+// SUBMIT FORM
+// ==========================
+document.getElementById("registerForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const message = document.getElementById("message");
+
+  if (!validate()) {
+    message.textContent = "Please fix highlighted fields.";
+    message.style.color = "red";
+    return;
+  }
+
+  const data = {
+    id: document.getElementById("studentId").value,
+    first_name: document.getElementById("firstName").value,
+    last_name: document.getElementById("lastName").value,
+    project_title: document.getElementById("projectTitle").value,
+    email: document.getElementById("email").value,
+    phone: document.getElementById("phone").value,
+    timeslot_id: document.getElementById("timeslot").value
+  };
+
+  try {
+    // Check if student exists
+    const check = await fetch(API + "/students");
+    const students = await check.json();
+
+    const exists = students.find(s => s.id === data.id);
+
+    if (exists) {
+      const confirmChange = confirm("You are already registered. Change your time slot?");
+      if (!confirmChange) {
+        return;
+      }
+    }
+
+    // Submit
+    const res = await fetch(API + "/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    message.textContent = result.message;
+    message.style.color = "green";
+
+    loadSlots();
+
+  } catch (err) {
+    message.textContent = "Server error. Try again.";
+    message.style.color = "red";
+  }
+});
+
+</script>
 
 </body>
 </html>
