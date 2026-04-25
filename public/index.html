@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Registration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="container">
+
+    <header>
+      <h1>Student Demo Registration</h1>
+      <p>Select a time slot and register your project</p>
+    </header>
+
+    <!-- REGISTRATION FORM -->
+    <section class="form-section">
+      <h2>Register</h2>
+
+      <form id="registerForm">
+
+        <input type="text" id="studentId" placeholder="Student ID (8 digits)" required>
+
+        <div class="row">
+          <input type="text" id="firstName" placeholder="First Name" required>
+          <input type="text" id="lastName" placeholder="Last Name" required>
+        </div>
+
+        <input type="text" id="projectTitle" placeholder="Project Title" required>
+
+        <input type="email" id="email" placeholder="Email" required>
+
+        <input type="text" id="phone" placeholder="Phone (999-999-9999)" required>
+
+        <!-- Timeslots (will be filled by Node later) -->
+        <select id="timeslot">
+          <option value="">Select Time Slot</option>
+        </select>
+
+        <button type="submit">Submit Registration</button>
+
+      </form>
+    </section>
+
+    <!-- TIME SLOT DISPLAY -->
+    <section class="timeslot-section">
+      <h2>Available Time Slots</h2>
+      <div id="timeslots">
+        <!-- dynamically filled later -->
+        <p>Loading time slots...</p>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>
