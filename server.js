@@ -1,5 +1,4 @@
-require("dotenv").config();
-console.log("ENV CHECK:");
+require("dotenv").config({ path: ".env" });console.log("ENV CHECK:");
 console.log(process.env.MYSQLHOST);
 console.log(process.env.MYSQLDATABASE);
 const express = require("express");
@@ -20,6 +19,11 @@ const db = mysql.createConnection({
     database: process.env.MYSQLDATABASE,
     port: process.env.MYSQLPORT
 });
+
+console.log("MYSQLHOST =", process.env.MYSQLHOST);
+console.log("MYSQLPORT =", process.env.MYSQLPORT);
+console.log("MYSQLUSER =", process.env.MYSQLUSER);
+console.log("MYSQLDATABASE =", process.env.MYSQLDATABASE);
 
 db.connect(err => {
     if (err) {
