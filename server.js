@@ -40,6 +40,16 @@ app.get("/test", (req, res) => {
     res.json({ ok: true });
 });
 
+app.get("/db-test", (req, res) => {
+    db.query("SELECT 1", (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send(err);
+        }
+        res.json(result);
+    });
+});
+
 // Get seat availability
 app.get("/timeslots", (req, res) => {
 
