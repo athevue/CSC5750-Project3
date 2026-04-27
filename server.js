@@ -1,4 +1,4 @@
-require("dotenv").config({ path: ".env" });console.log("ENV CHECK:");
+require("dotenv").config();
 console.log(process.env.MYSQLHOST);
 console.log(process.env.MYSQLDATABASE);
 const express = require("express");
@@ -9,7 +9,9 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(__dirname));
+
+const path = require("path");
+app.use(express.static(path.join(__dirname, "public")));
 
 // MySQL connection
 const db = mysql.createConnection({
