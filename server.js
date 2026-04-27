@@ -1,3 +1,7 @@
+require("dotenv").config();
+console.log("ENV CHECK:");
+console.log(process.env.MYSQLHOST);
+console.log(process.env.MYSQLDATABASE);
 const express = require("express");
 const mysql = require("mysql2");
 const bodyParser = require("body-parser");
@@ -6,13 +10,15 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(__dirname));
 
 // MySQL connection
 const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "CSC5750-Project3"
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT
 });
 
 db.connect(err => {
@@ -20,9 +26,13 @@ db.connect(err => {
         console.error("DB connection failed:", err);
     } else {
         console.log("Connected to MySQL");
+        console.log("DB NAME:", process.env.MYSQLDATABASE);
     }
 });
 
+app.get("/test", (req, res) => {
+    res.json({ ok: true });
+});
 
 // Get seat availability
 app.get("/timeslots", (req, res) => {
@@ -36,7 +46,10 @@ app.get("/timeslots", (req, res) => {
     `;
 
     db.query(query, (err, results) => {
-        if (err) return res.status(500).send(err);
+        if (err) {
+            console.log("TIMESLOT ERROR:", err);
+            return res.status(500).json(err);
+        }
 
         const slots = results.map(row => ({
             timeslot: row.id,
@@ -58,7 +71,10 @@ app.post("/register", (req, res) => {
     const checkQuery = "SELECT * FROM students WHERE id = ?";
 
     db.query(checkQuery, [id], (err, results) => {
-        if (err) return res.status(500).send(err);
+        if (err) {
+            console.log("REGISTER ERROR:", err);
+            return res.status(500).json(err);
+        }
 
         if (results.length > 0) {
             // already exists → update
